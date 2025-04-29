@@ -77,7 +77,7 @@ app.get('/api/messages/:sender/:receiver', async (req, res) => {
         { senderUsername: sender, receiverUsername: receiver },
         { senderUsername: receiver, receiverUsername: sender },
       ],
-    }).sort({ timestamp: 1 });
+    });
 
     res.json(messages);
   } catch (error) {
