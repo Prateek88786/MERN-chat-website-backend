@@ -8,7 +8,22 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb+srv://prateek88786:newton13@cluster0.dwo5jsc.mongodb.net/chatDB')
+const connectToDatabase = async () => {
+  try {
+    const connection = await mongoose.connect('mongodb+srv://prateek88786:Prateek1234@cluster0.dwo5jsc.mongodb.net/chatDB', {
+      serverSelectionTimeoutMS: 30000,
+    });
+    console.log("Connected to Database successfully!");
+    console.log("Database name:", connection.connection.db.databaseName);
+    return true;
+  } catch (error) {
+    console.error("Database connection failed:", error.message);
+    return false;
+  }
+};
+
+connectToDatabase();
+
 
 const User = mongoose.model('user', {
   name: String,
@@ -17,7 +32,7 @@ const User = mongoose.model('user', {
   profilePic: String,
   selectedUser:String,
   unread:Array
-});
+},'users');
 
 const Message = mongoose.model('message', {
   senderUsername: String,
@@ -27,6 +42,19 @@ const Message = mongoose.model('message', {
   content: String,
   timestamp: {type:Date,default:new Date()},
 });
+
+
+app.get('/api/collections', async (req, res) => {
+  try {
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    res.json(collections.map(c => c.name));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
 app.get('/api/users', async (req, res) => {
   try {
     const users = await User.find();
